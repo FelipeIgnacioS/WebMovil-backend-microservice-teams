@@ -1,31 +1,34 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { TeamsModule } from './teams/teams.module'; // Importa tus módulos aquí
-import { RolesModule } from './role/role.module'; // Importa tus módulos aquí
-import { TeamMembersModule } from './team_members/team_member.module'; // Importa tus módulos aquí
-import { JwtValidationGuard  } from './middleware/jwt-validation.middleware'; // Importa tu middleware aquí
-import { APP_GUARD } from '@nestjs/core';
-import config from '../ormconfig';
-import { HttpModule } from '@nestjs/axios';
-import { JwtModule } from '@nestjs/jwt';
+
+import { TeamsModule } from './teams/teams.module';
+import { Team } from './infrastructure/team.entity';
+import { Role } from './infrastructure/role.entity';
+import { TeamMember } from './infrastructure//team-member.entity';
+import { ProjectTeam } from './infrastructure/project-team.entity';
+import { Project } from './infrastructure/project.entity';
+import { TeamInvitation } from './infrastructure/team-invitation.entity';
+import { ProjectTeamInvitation } from './infrastructure/proyect-team-invitation.entity';
+
+import * as dotenv from 'dotenv';
+
+dotenv.config();
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot(config),
-    TeamsModule,
-    RolesModule,
-    TeamMembersModule,
-    HttpModule,
-    JwtModule.register({
-      secret: 'futbolitos', // Reemplaza esto con tu clave secreta
-      signOptions: { expiresIn: '60m' },
+    TypeOrmModule.forRoot({
+      type: 'postgres', // tipo de base de datos
+      host: process.env.TYPEORM_HOST, // host de la base de datos
+      port: +process.env.TYPEORM_PORT, // puerto
+      username: process.env.TYPEORM_USERNAME, // usuario
+      password: process.env.TYPEORM_PASSWORD, // contraseña
+      database: process.env.TYPEORM_DATABASE, // nombre de la base de datos
+      entities: [Team, Role, TeamMember, Project, ProjectTeam, TeamInvitation, ProjectTeamInvitation], // entidades que se usarán
+      synchronize: false,
     }),
+    TeamsModule,
   ],
-  providers: [
-    {
-      provide: APP_GUARD,
-      useClass: JwtValidationGuard , 
-    },
-  ],
+  controllers: [],
+  providers: [],
 })
 export class AppModule {}
