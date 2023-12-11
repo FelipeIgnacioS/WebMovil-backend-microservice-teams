@@ -2,10 +2,10 @@ import { IsNumber } from 'class-validator';
 
 export class AddMemberDto {
   @IsNumber()
-  readonly teamId: number;
+  teamId: number;
 
   @IsNumber()
-  readonly userId: number;
+  userId: number;
 
 }
 
@@ -17,5 +17,20 @@ export class UpdateMemberDto {
   readonly teamId: number;
 
   @IsNumber()
-  readonly roleId: number;
+  readonly newRoleName : string;
+
+  @IsNumber()
+  readonly requestingUserId: number;
 }
+
+export class DeleteMemberDto{
+  @IsNumber()
+  readonly idTeam: number;
+
+  @IsNumber()
+  readonly idUserProperity: number;
+
+  @IsNumber()
+  readonly idUser: number;
+}
+

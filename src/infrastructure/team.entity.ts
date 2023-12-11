@@ -1,6 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, CreateDateColumn, UpdateDateColumn, DeleteDateColumn } from 'typeorm';
 import { TeamMember } from './team-member.entity';
-import { Role } from './role.entity';
 import { TeamInvitation } from './team-invitation.entity';
 import { ProjectTeam } from './project-team.entity';  
 
@@ -12,20 +11,27 @@ export class Team {
   @Column({ length: 255, nullable: false })
   name: string;
 
-  @Column('text', { nullable: true })
+  @Column('text', { nullable: false })
   description: string;
 
-  @Column({ type: 'timestamp', nullable: false, name: 'creationdate' })
-  creationDate: Date;
+  @Column({ unique: true })
+  code: string;
 
   @Column({ nullable: false, name: 'createdbyuserid' })
   createdByUserId: number;
 
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
+
+  @DeleteDateColumn()
+  deletedAt: Date;
+
+
   @OneToMany(() => TeamMember, teamMember => teamMember.team, { cascade: true, onDelete: 'CASCADE' })
   members: TeamMember[];
-
-  @OneToMany(() => Role, role => role.team)
-  roles: Role[];
 
   @OneToMany(() => TeamInvitation, teamInvitation => teamInvitation.team)
   teamInvitations: TeamInvitation[];

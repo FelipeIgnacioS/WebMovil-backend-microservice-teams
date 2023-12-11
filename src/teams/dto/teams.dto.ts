@@ -11,9 +11,6 @@ export class CreateTeamDto {
 
   @IsNumber()
   readonly createdByUserId: number;
-
-  
-  readonly creationDate: Date;
 }
 
 export class UpdateTeamDto {
@@ -40,13 +37,3 @@ export class DeleteTeamDto {
   readonly idUser: number;
 }
 
-export class DeleteMemberDto{
-  @IsNumber()
-  readonly idTeam: number;
-
-  @IsNumber()
-  readonly idUserProperity: number;
-
-  @IsNumber()
-  readonly idUser: number;
-}

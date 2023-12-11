@@ -1,7 +1,13 @@
-// project-team.entity.ts
 import { Entity, PrimaryGeneratedColumn, ManyToOne, Column } from 'typeorm';
 import { Project } from './project.entity';
 import { Team } from './team.entity';
+
+export enum InvitationStatus {
+  Pending = 'PENDING',
+  Accepted = 'ACCEPTED',
+  Rejected = 'REJECTED',
+}
+
 
 @Entity('ProjectTeamInvitation')
 export class ProjectTeamInvitation {
@@ -14,6 +20,15 @@ export class ProjectTeamInvitation {
   @ManyToOne(() => Team, team => team.projects)
   team: Team;
 
-  @Column({ length: 255, nullable: false })
-  status: string;
+  @Column(
+    {
+      type: 'enum',
+      enum: InvitationStatus,
+      default: InvitationStatus.Pending,
+    },
+  )
+  status: InvitationStatus;
+
+  @Column('timestamp')
+  invitationDate: Date;
 }

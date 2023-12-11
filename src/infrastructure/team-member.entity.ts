@@ -1,18 +1,26 @@
-import { Entity, PrimaryGeneratedColumn, ManyToOne, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, ManyToOne, JoinColumn, Column } from 'typeorm';
 import { Team } from './team.entity';
 import { Role } from './role.entity';
 
-@Entity('TeamMember')
+@Entity()
 export class TeamMember {
-  @PrimaryGeneratedColumn()
-  id: number;
+    @PrimaryGeneratedColumn()
+    id: number;
 
-  @ManyToOne(() => Team, team => team.members)
-  team: Team;
+    @ManyToOne(() => Team)
+    @JoinColumn({ name: 'teamId' })
+    team: Team;
 
-  @Column()
-  userId: number;
+    @Column()
+    teamId: number;
 
-  @ManyToOne(() => Role, role => role.members)
-  role: Role;
+    @ManyToOne(() => Role)
+    @JoinColumn({ name: 'roleId' })
+    role: Role;
+
+    @Column()
+    roleId: number;
+
+    @Column()
+    userId: number; 
 }

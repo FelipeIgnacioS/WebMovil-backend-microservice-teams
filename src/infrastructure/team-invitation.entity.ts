@@ -1,6 +1,13 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
 import { Team } from './team.entity';
 
+export enum InvitationStatus {
+  Pending = 'PENDING',
+  Accepted = 'ACCEPTED',
+  Rejected = 'REJECTED',
+  Cancelled = 'CANCELLED',
+}
+
 @Entity('TeamInvitation')
 export class TeamInvitation {
   @PrimaryGeneratedColumn()
@@ -12,7 +19,15 @@ export class TeamInvitation {
   @Column()
   invitedUserId: number;
 
-  @Column({ length: 255, nullable: false })
-  status: string;
+  @Column(
+    {
+      type: 'enum',
+      enum: InvitationStatus,
+      default: InvitationStatus.Pending,
+    },
+  )
+  status: InvitationStatus;
 
+  @Column('timestamp')
+  invitationDate: Date;
 }

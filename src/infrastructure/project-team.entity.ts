@@ -12,4 +12,5 @@ export class ProjectTeam {
 
   @ManyToOne(() => Team, team => team.projects)
   team: Team;
+    projectTeam: ProjectTeam;
 }
