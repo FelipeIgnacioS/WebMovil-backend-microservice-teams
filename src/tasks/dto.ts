@@ -85,6 +85,22 @@ export class GetTasksDto {
     @IsOptional()
     @IsBoolean()
     myTasks?: boolean;
+
+    @IsInt()
+    @IsNotEmpty()
+    projectId: number;
   }
   
-  
+export class AddCommentDto{
+    @IsNotEmpty()
+    @IsInt()
+    idTask: number; 
+
+    @IsNotEmpty()
+    @IsString()
+    content: string;
+
+    @IsNotEmpty()
+    @IsInt()
+    createdByUserId : number;
+}

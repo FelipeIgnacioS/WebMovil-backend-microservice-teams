@@ -39,4 +39,12 @@ export class MembersController {
   async findAllTeamsUser(@Param('id') id: number) {
     return this.membersService.findAllTeamsUser(id);
   }
+
+
+  //salir de un equipo
+  @Delete('leave-team')
+  async leaveTeam(@Body() leaveTeamDto: DeleteMemberDto) {
+    await this.membersService.leaveTeam(leaveTeamDto);
+    return { message: 'El usuario ha salido del equipo correctamente.' };
+  }
 }

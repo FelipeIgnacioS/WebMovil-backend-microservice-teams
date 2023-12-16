@@ -13,7 +13,7 @@ import * as dotenv from 'dotenv';
 import { TaskModule } from './tasks/task.module';
 import { ProyectModule } from './proyects/proyect.module';
 import { Task } from './infrastructure/task.entity';
-
+import { Comment } from './infrastructure/commen.entity';
 dotenv.config();
 
 @Module({
@@ -25,7 +25,7 @@ dotenv.config();
       username: process.env.TYPEORM_USERNAME, // usuario
       password: process.env.TYPEORM_PASSWORD, // contraseña
       database: process.env.TYPEORM_DATABASE, // nombre de la base de datos
-      entities: [Team, Role, TeamMember, Project, ProjectTeam, TeamInvitation, ProjectTeamInvitation, Task], // entidades que se usarán
+      entities: [Team, Role, TeamMember, Project, ProjectTeam, TeamInvitation, ProjectTeamInvitation, Task, Comment], // entidades que se usarán
       synchronize: true,
       logging: true,
     }),

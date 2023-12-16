@@ -11,16 +11,16 @@ export class AddMemberDto {
 
 export class UpdateMemberDto {
   @IsNumber()
-  readonly userId: number;
+  readonly idUser: number;
 
   @IsNumber()
-  readonly teamId: number;
+  readonly idTeam: number;
 
   @IsNumber()
   readonly newRoleName : string;
 
   @IsNumber()
-  readonly requestingUserId: number;
+  readonly userId: number;
 }
 
 export class DeleteMemberDto{
@@ -34,3 +34,10 @@ export class DeleteMemberDto{
   readonly idUser: number;
 }
 
+export class LeaveTeam{
+  @IsNumber()
+  readonly idTeam: number;
+
+  @IsNumber()
+  readonly idUser: number;
+}

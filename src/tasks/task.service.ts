@@ -2,9 +2,10 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Task, TaskStatus } from '../infrastructure/task.entity';
-import { CreateTaskDto, UpdateTaskDto, DeleteTaskDto, GetTasksDto } from './dto';
+import { CreateTaskDto, UpdateTaskDto, DeleteTaskDto, GetTasksDto, AddCommentDto } from './dto';
 import { Project } from 'src/infrastructure/project.entity';
-import { fetchUserId } from 'src/middleware/invitationTeam';
+import { fetchUserDetails } from 'src/middleware/member';
+import { Comment } from 'src/infrastructure/commen.entity';
 @Injectable()
 export class TasksService {
   constructor(
@@ -12,6 +13,8 @@ export class TasksService {
     private readonly taskRepository: Repository<Task>,
     @InjectRepository(Project)
     private readonly projectRepository: Repository<Project>,
+    @InjectRepository(Comment)
+    private readonly commentRepository: Repository<Comment>,
   ) {}
 
   async createTask(createTaskDto: CreateTaskDto) {
@@ -31,6 +34,30 @@ export class TasksService {
     task.responsibleId = createTaskDto.responsibleId;
     task.status = TaskStatus.Todo;
     task.comments = '';
+    
+    //primero buscamos los nombres del creador y el responsable creando una lista con sus ids, recordar que el de responsable puede ser null
+    const usersIds = [task.createdByUserId];
+    if (task.responsibleId) {
+        usersIds.push(task.responsibleId);
+    }
+    const users = await fetchUserDetails(usersIds);
+    //asignamos los nombres
+    console.log(users);
+    const createdByUser = users.find(user => user.id === task.createdByUserId);
+    if (createdByUser) {
+        task.nameCreatedBy = createdByUser.firstName ;
+    }
+
+    const responsibleUser = task.responsibleId ? users.find(user => user.id === task.responsibleId) : null;
+    if (responsibleUser) {
+        task.nameResponsible = responsibleUser.firstName ;
+    }
+    else {
+        task.nameResponsible = 'Sin asignar';
+    }
+
+
+
     await this.taskRepository.save(task);
   }
 
@@ -46,6 +73,7 @@ export class TasksService {
   }
 
   async getTasks(query: GetTasksDto): Promise<Task[]> {
+    console.log("query", query);
     const taskQueryBuilder = this.taskRepository.createQueryBuilder('task');
     const userId = query.userId;
     // Filtrar por nombre de tarea
@@ -53,19 +81,15 @@ export class TasksService {
       taskQueryBuilder.andWhere('task.name LIKE :name', { name: `%${query.name}%` });
     }
   
-    // Filtrar por responsable
-    if (query.responsibleId) {
-      taskQueryBuilder.andWhere('task.responsibleId = :responsibleId', { responsibleId: query.responsibleId });
-    }
   
     // Filtrar por estado
     if (query.status) {
       taskQueryBuilder.andWhere('task.status = :status', { status: query.status });
     }
-  
-    // Filtrar por tareas propias
-    if (query.myTasks) {
-      taskQueryBuilder.andWhere('(task.createdByUserId = :userId OR task.responsibleId = :userId)', { userId });
+
+    // Filtrar por tareas de un proyecto
+    if (query.projectId) {
+      taskQueryBuilder.andWhere('task.projectId = :projectId', { projectId: query.projectId });
     }
   
     taskQueryBuilder.andWhere('task.deletedAt IS NULL');
@@ -128,5 +152,42 @@ export class TasksService {
         throw new NotFoundException('The project does not have tasks');
     }
     return tasks;
+  }
+
+  async createComment(body: AddCommentDto) {
+    const task = await this.taskRepository.findOne({ where: { id: body.idTask } });
+    if (!task) {
+        throw new NotFoundException('Task not found');
+    }
+
+    const user = await fetchUserDetails([body.createdByUserId]);
+    const name = user[0].firstName; // Asegúrate de manejar casos donde el usuario no se encuentre
+
+    const comment = new Comment();
+    comment.content = body.content;
+    comment.task = task;
+    comment.nameCreatedBy = name;
+    
+    await this.commentRepository.save(comment);
+}
+
+
+  async getComments(taskId: number): Promise<Comment[]> {
+    //obtener los comentarios de una tarea
+    //primero debemos verificar que la tarea exista
+    const task = await this.taskRepository.findOne({
+        where: { id: taskId },
+    });
+    if (!task) {
+        throw new NotFoundException('Task not found');
+    }
+    //obtenemos los comentarios de la tarea en el repositorio de comentarios
+    const comments = await this.commentRepository.find({
+        where: { task: { id: taskId } },
+    });
+    if (comments.length === 0) {
+        throw new NotFoundException('The task does not have comments');
+    }
+    return comments;
   }
 }

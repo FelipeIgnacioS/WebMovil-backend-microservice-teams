@@ -83,21 +83,23 @@ async findAllMembersTeam(id: number) {
 
 
 async update(updateMemberDto: UpdateMemberDto) {
-  const team = await this.teamRepository.findOne({ where: { id: updateMemberDto.teamId } });
+  console.log("updateMemberDto", updateMemberDto);
+  const team = await this.teamRepository.findOne({ where: { id: updateMemberDto.idTeam } });
+  console.log("team", team);
 
   if (!team) {
     throw new NotFoundException('El equipo no existe.');
   }
 
   // Verificar si el usuario que realiza la acción es el propietario del equipo
-  if (team.createdByUserId !== updateMemberDto.requestingUserId) {
+  if (team.createdByUserId !== updateMemberDto.userId) {
     throw new UnauthorizedException('Solo el propietario del equipo puede actualizar a los miembros.');
   }
 
   const member = await this.teamMemberRepository.findOne({
     where: {
-      userId: updateMemberDto.userId,
-      team: { id: updateMemberDto.teamId }
+      userId: updateMemberDto.idUser,
+      team: { id: updateMemberDto.idTeam }
     },
   });
 
@@ -110,7 +112,8 @@ async update(updateMemberDto: UpdateMemberDto) {
   if (!role) {
     throw new NotFoundException('El rol no existe.');
   }
-
+  console.log("meber", member);
+  console.log("team", team);
   // Evitar cambiar el rol del propietario del equipo
   if (member.userId === team.createdByUserId) {
     throw new UnauthorizedException('No se puede cambiar el rol del propietario del equipo.');
@@ -122,6 +125,7 @@ async update(updateMemberDto: UpdateMemberDto) {
   }
 
   member.role = role;
+  console.log("member", member);
   await this.teamMemberRepository.save(member);
 }
 
@@ -167,4 +171,28 @@ async update(updateMemberDto: UpdateMemberDto) {
     return teams;
   }
   
+  async leaveTeam (leaveTeamDto: DeleteMemberDto) {
+    const team = await this.teamRepository.findOne({ where: { id: leaveTeamDto.idTeam } });
+    if (!team) {
+      throw new NotFoundException('El equipo no existe.');
+    }
+  
+    if (team.createdByUserId === leaveTeamDto.idUser) {
+      throw new UnauthorizedException('No se puede eliminar al propietario del equipo.');
+    }
+  
+    const member = await this.teamMemberRepository.findOne({
+      where: {
+        userId: leaveTeamDto.idUser,
+        team: { id: leaveTeamDto.idTeam }
+      },
+    });
+    
+    if (!member) {
+      throw new NotFoundException('El miembro no existe.');
+    }
+  
+    await this.teamMemberRepository.remove(member);
+  }
+
 }

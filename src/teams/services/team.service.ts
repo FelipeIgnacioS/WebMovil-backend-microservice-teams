@@ -100,7 +100,7 @@ export class TeamsService {
     console.log("funcion eliminar equipo: ", team);
     //eliminar todos los registros en la tala teammember que tengan el id del equipo
     await this.teamMemberRepository.delete({ team: { id: team.id } });
-    //eliminar todos los registrons en la tabla de teamInvitations que tengan el id del equioi
+    //eliminar todos los registrons en la tabla de teamInvitations que tengan el id del equipo
     await this.teamInvitationRepository.delete({ team: { id: team.id } });
 
     

@@ -46,20 +46,26 @@ export class ProjectsService {
   }
 
   async getUserProjects(userId: number): Promise<Project[]> {
-    const projects = await this.projectRepository
-      .createQueryBuilder('project')
-      .innerJoin('project.teams', 'projectTeam')
-      .innerJoin('team_member', 'teamMember', 'projectTeam.teamId = teamMember.teamId')
-      .where('teamMember.userId = :userId', { userId })
-      .andWhere('project.deletedAt IS NULL') // Asegurar que el proyecto no está eliminado
-      .getMany();
-  
-    if (!projects || projects.length === 0) {
-      throw new NotFoundException('No projects found for this user');
+    console.log("userId", userId);
+    
+    const query = this.projectRepository
+        .createQueryBuilder('project')
+        .leftJoinAndSelect('project.teams', 'projectTeam')
+        .leftJoinAndSelect('projectTeam.team', 'team')
+        .leftJoinAndSelect('team.members', 'members')
+        .where('project.createdByUserId = :userId', { userId })
+        .orWhere('members.userId = :userId', { userId });
+
+    const projects = await query.getMany();
+    console.log("projects", projects);
+    
+    if (projects.length === 0) {
+      throw new NotFoundException('El usuario no tiene ningún proyecto');
     }
-  
+    
     return projects;
-  }
+}
+
   
   
   
@@ -94,8 +100,12 @@ export class ProjectsService {
 
   async deleteProject(deleteProjectDto: DeleteProjectDto): Promise<void> {
     //primero debemos buscar un proyecto por su id
+    console.log("deleteProjectDto", deleteProjectDto);
+    const id = deleteProjectDto.idProject;
+
+    console.log("id", id);  
     const project = await this.projectRepository.findOne({
-        where: { id: deleteProjectDto.idProyect },
+        where: { id: id },
     });
     console.log("project", project);
     if (!project) {
@@ -119,11 +129,12 @@ export class ProjectsService {
   }
 
   async getUsers(projectId: number) {
+    console.log("projectId", projectId);
     const project = await this.projectRepository.findOne({ where: { id: projectId } });
     if (!project) {
         throw new NotFoundException('Project not found');
     }
-
+    console.log("project", project);
     const projectTeams = await this.projectTeamRepository
     .createQueryBuilder('projectTeam')
     .leftJoinAndSelect('projectTeam.team', 'team')
@@ -132,7 +143,9 @@ export class ProjectsService {
 
     const teamIds = projectTeams.map(pt => pt.team.id);
     console.log("teamIds", teamIds);
-
+    if (teamIds.length === 0) {
+        throw new NotFoundException('El proyecto no tiene equipos');
+    }
     const members = await this.teamMemberRepository
         .createQueryBuilder('team_member')
         .where('team_member.teamId IN (:...teamIds)', { teamIds })

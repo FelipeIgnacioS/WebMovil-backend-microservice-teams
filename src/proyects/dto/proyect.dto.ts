@@ -16,11 +16,9 @@ export class CreateProjectDto {
 
 export class DeleteProjectDto {
   @IsNotEmpty()
-  @IsInt()
-  idProyect: number;
+  idProject: number; 
 
   @IsNotEmpty()
-  @IsInt()
   idUser: number;
 }
 

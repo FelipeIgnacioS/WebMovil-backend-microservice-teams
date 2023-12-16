@@ -28,6 +28,6 @@ export class ProjectTeamController {
   async removeTeamFromProject(@Body() removeTeamFromProjectDto: RemoveTeamFromProjectDto) {
     await this.projectTeamService.removeTeamFromProject(removeTeamFromProjectDto);
     return { message: 'Team removed from project' };
-
   }
+
 }

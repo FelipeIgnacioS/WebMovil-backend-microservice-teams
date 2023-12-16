@@ -160,13 +160,15 @@ export class ProjectInvitationsService {
         throw new UnauthorizedException('Team not found');
     }
     // obtenemos la invitaciones de un equipo
-    //hacemos una query para obtener las invitaciones de un equipo y tener la informacion de los proyectos, ademas filtramos para que solo sean las invitaciones pendientes
+    //hacemos una query builder para obtener las invitaciones de un equipo y tener la informacion de los proyectos    
     const invitations = await this.projectTeamInvitationRepository
       .createQueryBuilder('projectTeamInvitation')
-      .innerJoin('projectTeamInvitation.project', 'project')
+      .leftJoinAndSelect('projectTeamInvitation.project', 'project')
       .where('projectTeamInvitation.team.id = :teamId', { teamId: team.id })
       .andWhere('projectTeamInvitation.status = :status', { status: InvitationStatus.Pending })
       .getMany();
+
+
     if (invitations.length === 0) {
         throw new UnauthorizedException('No pending invitations found');
     }

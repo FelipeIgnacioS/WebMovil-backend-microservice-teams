@@ -1,10 +1,10 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, CreateDateColumn, UpdateDateColumn, DeleteDateColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, OneToMany } from 'typeorm';
 import { Project } from './project.entity';
-
+import { Comment } from './commen.entity';
 export enum TaskStatus {
-    Todo = 'TODO',
-    InProgress = 'In_Progress',
-    Done = 'DONE',
+    Todo = 'Por Hacer',
+    InProgress = 'En curso',
+    Done = 'Realizada',
 }
 
 @Entity('Task')
@@ -23,6 +23,12 @@ export class Task {
 
     @Column({ nullable: true })
     responsibleId: number;
+
+    @Column({ nullable: true })
+    nameResponsible: string;
+
+    @Column({ nullable: true })
+    nameCreatedBy: string;
 
     @Column({
         type: 'enum',
@@ -51,5 +57,8 @@ export class Task {
 
     @Column({ nullable: true })
     comments: string;
-  task: Task;
+    task: Task;
+
+    @OneToMany(() => Comment, comment => comment.task)
+    commentss: Comment[];
 }

@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body, Param, Patch, Delete, Query } from '@nestjs/common';
 import { TasksService } from './task.service';
-import { CreateTaskDto, UpdateTaskDto, DeleteTaskDto, GetTasksDto } from './dto';
+import { CreateTaskDto, UpdateTaskDto, DeleteTaskDto, GetTasksDto, AddCommentDto } from './dto';
 
 @Controller('tasks')
 export class TasksController {
@@ -41,5 +41,17 @@ export class TasksController {
   async deleteTask(@Body() deleteTaskDto: DeleteTaskDto) {
     await this.tasksService.deleteTask(deleteTaskDto);
     return { message: 'Tarea eliminada exitosamente' };
+  }
+
+  @Post('/createComment')
+  async createComment(@Body() body: AddCommentDto) {
+    const comment = await this.tasksService.createComment(body);
+    return { message: 'Comentario creado exitosamente'};
+  }
+
+  @Get('/getComments/:taskId')
+  async getComments(@Param('taskId') taskId: number) {
+    const comments = await this.tasksService.getComments(taskId);
+    return comments;
   }
 }

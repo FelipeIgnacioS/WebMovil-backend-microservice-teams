@@ -51,6 +51,7 @@ export class ProjectTeamService {
   }
 
   async getTeamsOfProject(getTeamsOfProjectDto: GetTeamsOfProyectDto) {
+    console.log("getTeamsOfProjectDto", getTeamsOfProjectDto);
     //obtener los equipos de un proyecto
     //hacemos una query para obtener los equipos de un proyecto y tener la información del equipo
     //debemos usar la tabla de ProjectTeam, ya que es la que tiene la relación entre los proyectos y los equipos

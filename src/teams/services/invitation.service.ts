@@ -50,14 +50,13 @@ export class TeamInvitationsService {
 
   //obtener invitaciones
   async findAll(userId: number): Promise<TeamInvitation[]> {
-    // Crear el QueryBuilder
-    const query = this.teamInvitationRepository.createQueryBuilder('invitation');
-
-    // Filtrar por el ID del usuario y el estado 'PENDING'
-    query.where('invitation.invitedUserId = :userId', { userId })
-         .andWhere('invitation.status = :status', { status: InvitationStatus.Pending });
-
-    // Ejecutar la consulta y devolver los resultados
+    // Crear el QueryBuilder y obtener las invitaciones del userId, con status Pending y con el team asociado a la invitacion (para obtener el nombre del equipo) 
+    const query = this.teamInvitationRepository
+        .createQueryBuilder('invitation')
+        .leftJoinAndSelect('invitation.team', 'team')
+        .where('invitation.invitedUserId = :userId', { userId: userId })
+        .andWhere('invitation.status = :status', { status: InvitationStatus.Pending });
+    
     const invitations = await query.getMany();
     if (invitations.length === 0) {
         throw new NotFoundException('No se encontraron invitaciones');
